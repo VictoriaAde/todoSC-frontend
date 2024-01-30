@@ -96,6 +96,25 @@ function App() {
     }
   };
 
+  const toggleStatusChange = async (index) => {
+    try {
+      const signer = await getSigner();
+      const todoContract = getTodoContractInstance(signer);
+
+      const txn = await todoContract.updateTodoStatus(index);
+
+      setLoading(true);
+      await txn.wait();
+
+      const contractTodos = await todoContract.showTodos();
+      setTodos(contractTodos);
+
+      setLoading(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const handleTitleChange = (e) => {
     setTitle(e.target.value);
   };
@@ -125,7 +144,7 @@ function App() {
     };
 
     fetchTodos();
-  }, [account, provider]);
+  }, [account, getTodoContractInstance, provider]);
 
   return (
     <div className="">
@@ -232,7 +251,10 @@ function App() {
                         )}
                         <hr />
                         <hr />
-                        <button className="btn btn-secondary">
+                        <button
+                          onClick={() => toggleStatusChange(index)}
+                          className="btn btn-secondary"
+                        >
                           Toggle Status
                         </button>
                       </div>
